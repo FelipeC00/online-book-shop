@@ -5,6 +5,7 @@ import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -24,9 +25,13 @@ public class Book implements Serializable{
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
   private Long id;
+  @Column(name = "title", nullable = false)
   private String title;
+  @Column(name = "publisher", nullable = false)
   private String publisher;
+  @Column(name = "price", nullable = false)
   private BigDecimal price;
+  @Column(name = "stock", nullable = false)
   private int stock;
   
   @OneToMany(mappedBy = "book")

@@ -7,6 +7,8 @@ import org.springframework.stereotype.Service;
 
 import com.example.Bookshop.entities.Book;
 import com.example.Bookshop.repositories.BookRepository;
+import com.example.Bookshop.services.exceptions.CustomEntityNotFoundException;
+import com.example.Bookshop.services.exceptions.TitleNotFoundException;
 
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
@@ -30,7 +32,7 @@ public class BookService {
    @Transactional
   public Book getById(Long id){
     return bookRepository.findById(id)
-    .orElseThrow(() -> new RuntimeException());
+    .orElseThrow(() -> new CustomEntityNotFoundException(id));
   }
   
   @Transactional
@@ -40,20 +42,20 @@ public class BookService {
   
   @Transactional
   public Book update(Long id, Book book){
-    Book existinBook = bookRepository.findById(id)
-    .orElseThrow(() -> new RuntimeException());
+    Book existinBook = getById(id);
     existinBook.setTitle(book.getTitle());
     existinBook.setPublisher(book.getPublisher());
     existinBook.setPrice(book.getPrice());
     existinBook.setStock(book.getStock());
     return bookRepository.save(existinBook);
   }
-
+  
+  @Transactional
   public void deleteById(Long id){
     if(bookRepository.existsById(id)){
       bookRepository.deleteById(id);
     }else{
-      throw new EntityNotFoundException();
+      throw new CustomEntityNotFoundException(id);
     }
   }
 }

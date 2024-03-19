@@ -13,6 +13,9 @@ import com.example.Bookshop.entities.OrderItem;
 import com.example.Bookshop.entities.enums.OrderStatus;
 import com.example.Bookshop.repositories.CartRepository;
 import com.example.Bookshop.repositories.OrderRepository;
+import com.example.Bookshop.services.exceptions.CustomEntityNotFoundException;
+
+import jakarta.transaction.Transactional;
 
 @Service
 public class OrderService {
@@ -23,10 +26,10 @@ public class OrderService {
   CartRepository cartRepository;
   @Autowired
   CartService cartService;
-
+  
+  @Transactional
   public Order save(Long cartId){
-    Cart existingCart = cartRepository.findById(cartId)
-    .orElseThrow(()-> new RuntimeException());
+    Cart existingCart = cartService.getCartById(cartId);
 
     if(existingCart.getItems().isEmpty()){
       throw new IllegalArgumentException("Cart is empty");
@@ -53,12 +56,14 @@ public class OrderService {
 
     return orderRepository.save(order);
   }
-
+  
+  @Transactional
   public Order getById(Long id){
     return orderRepository.findById(id)
-    .orElseThrow(()-> new RuntimeException());
+    .orElseThrow(()-> new CustomEntityNotFoundException(id));
   }
-
+  
+  @Transactional
   public List<Order> getAll(){
     return orderRepository.findAll();
   }

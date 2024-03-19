@@ -8,8 +8,8 @@ import com.example.Bookshop.entities.Cart;
 import com.example.Bookshop.entities.CartItem;
 
 import com.example.Bookshop.repositories.BookRepository;
-import com.example.Bookshop.repositories.CartItemRepository;
 import com.example.Bookshop.repositories.CartRepository;
+import com.example.Bookshop.services.exceptions.CustomEntityNotFoundException;
 
 import jakarta.transaction.Transactional;
 
@@ -19,21 +19,21 @@ public class CartService {
   @Autowired
   CartRepository cartRepository;
   @Autowired
-  CartItemRepository cartItemRepository;
+  CartItemService cartItemService;
   @Autowired
   BookRepository bookRepository;
+  @Autowired
+  BookService bookService;
 
   @Transactional
   public Cart getCartById(Long id){
-    return cartRepository.findById(id).orElseThrow(() -> new RuntimeException());
+    return cartRepository.findById(id).orElseThrow(() -> new CustomEntityNotFoundException(id));
   }
 
   @Transactional
   public Cart addItemToCart(Long userId, Long bookId, Integer quantity){
-    Cart existingCart = cartRepository.findById(userId)
-    .orElseThrow(()-> new RuntimeException());
-    Book existingBook = bookRepository.findById(bookId)
-    .orElseThrow(() -> new RuntimeException());
+    Cart existingCart = getCartById(userId);
+    Book existingBook = bookService.getById(bookId);
 
     CartItem cartItem = new CartItem();
     cartItem.setQuantity(quantity);
@@ -47,8 +47,7 @@ public class CartService {
   @Transactional
   public Cart deleteItemFromCart(Long itemId){
 
-      CartItem existingItem = cartItemRepository.findById(itemId)
-          .orElseThrow(() -> new RuntimeException("Item with id " + itemId + " not found"));
+      CartItem existingItem = cartItemService.getById(itemId);
 
       Cart existingCart = existingItem.getCart();
       Book existingBook = existingItem.getBook();
@@ -56,14 +55,14 @@ public class CartService {
   
       existingCart.removeItem(existingItem);
       existingBook.removeItem(existingItem);
-      cartItemRepository.delete(existingItem);
+      cartItemService.deleteById(itemId);
       
       return existingCart;
   }
-
+  
+  @Transactional
   public Cart clearCart(Long id){
-    Cart existingCart = cartRepository.findById(id)
-    .orElseThrow(()-> new RuntimeException());
+    Cart existingCart = getCartById(id);
 
       existingCart.getItems().clear();
    

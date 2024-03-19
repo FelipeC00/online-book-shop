@@ -9,6 +9,7 @@ import java.util.List;
 import com.example.Bookshop.entities.enums.OrderStatus;
 
 import jakarta.persistence.CascadeType;
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
@@ -39,9 +40,9 @@ public class Order implements Serializable{
 
     @OneToMany(mappedBy = "order", cascade = CascadeType.ALL)
     private List<OrderItem> orderItems = new ArrayList<>();
-
+    @Column(name = "totalPrice")
     private BigDecimal totalPrice;
-
+    @Column(name = "orderDate")
     private LocalDateTime orderDate;
     
     @Enumerated(EnumType.STRING)
